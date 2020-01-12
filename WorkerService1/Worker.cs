@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using WorkerService1;
 using WorkerService1.Hub.MainHub;
+using WorkerService1.Hub.MainHub.Utils;
 using System.Text;
 
 namespace WorkerService1 {
@@ -29,10 +30,6 @@ namespace WorkerService1 {
             _th_mainHub = _mainHub;
             _th_ManageNewMessages.Start();
 
-            //Saying to clients that the server is now on
-            _logger.LogInformation("Saying to clients that the server is now on");
-            _mainHub.Clients.All.ShowMessage("Server", "> Server is now active.");
-
             return base.StartAsync(cancellationToken);
         }
 
@@ -44,8 +41,7 @@ namespace WorkerService1 {
         //Thread for managing messages queue. This can be used for filtering and restyling messages
         private static void ManageNewMessages() {
             while (MainHubData.TryGetMessage()) {
-                var msg = MainHubData.DequeLastMessage();
-                _th_mainHub.Clients.All.ShowMessage(msg.User, msg.Message);
+                _th_mainHub.Clients.All.ShowMessage(MainHubData.DequeLastMessage().ToString());
             }
         }
 
@@ -63,7 +59,8 @@ namespace WorkerService1 {
                                     .Append(" - "));
 
                 _logger.LogInformation("Clients currently active on the servr: " + usersBuilder.ToString());
-                await _mainHub.Clients.All.ShowMessage("Server", "Server is working.", IMainHubServer.MessageType.Info);
+                await _mainHub.Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Server is working."), 
+                                                IMainHubServer.MessageType.Info);
 
                 await Task.Delay(30000, stoppingToken);
             }

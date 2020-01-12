@@ -7,8 +7,9 @@ var connection = new signalR
     .build();
 
 window.onload = () => {
-    connection.on("ShowMessage", function (user, message, type) {
+    connection.on("ShowMessage", function (json_data, type) {
 
+        let messageObj = JSON.parse(json_data);
         let color = "black";
         switch (type) {
             case 1:
@@ -23,7 +24,7 @@ window.onload = () => {
         }
 
         document.getElementById('coso')
-            .innerHTML += "<p style='color:" + color + "'>[" + user + "]: " + message + "</p>";
+            .innerHTML += "<p style='color:" + color + "'>[" + messageObj.User + "]: " + messageObj.Message + "</p>";
     });
 
     connection.on("ConfirmUsername", (_username, confirmed) => {
