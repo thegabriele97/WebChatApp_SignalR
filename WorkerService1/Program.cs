@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using WorkerService1.Hub;
+using WorkerService1.Hub.MainHub;
 using Microsoft.Extensions.FileProviders;
 
 namespace WorkerService1 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WorkerService1.Hub.Utils;
 
-namespace WorkerService1.Hub {
+namespace WorkerService1.Hub.MainHub {
     public class MainHub : Microsoft.AspNetCore.SignalR.Hub<IMainHub> {
 
         public override Task OnDisconnectedAsync(Exception exception) {

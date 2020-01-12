@@ -8,9 +8,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using WorkerService1;
-using WorkerService1.Hub;
+using WorkerService1.Hub.MainHub;
 using WorkerService1.Hub.Utils;
 using System.Text;
+using WorkerService1.Hub;
 
 namespace WorkerService1 {
     public class Worker : BackgroundService {
