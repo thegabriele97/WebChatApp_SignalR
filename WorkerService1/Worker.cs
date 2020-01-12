@@ -9,19 +9,17 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using WorkerService1;
 using WorkerService1.Hub.MainHub;
-using WorkerService1.Hub.Utils;
 using System.Text;
-using WorkerService1.Hub;
 
 namespace WorkerService1 {
     public class Worker : BackgroundService {
         private readonly ILogger<Worker> _logger;
-        private IHubContext<MainHub, IMainHub> _mainHub;
+        private IHubContext<MainHub, IMainHubServer> _mainHub;
         
         private Thread _th_ManageNewMessages;
-        private static IHubContext<MainHub, IMainHub> _th_mainHub;
+        private static IHubContext<MainHub, IMainHubServer> _th_mainHub;
 
-        public Worker(ILogger<Worker> logger, IHubContext<MainHub, IMainHub> hubContext) {
+        public Worker(ILogger<Worker> logger, IHubContext<MainHub, IMainHubServer> hubContext) {
             _logger = logger;
             _mainHub = hubContext;
             _th_ManageNewMessages = new Thread(ManageNewMessages);
@@ -43,9 +41,10 @@ namespace WorkerService1 {
             return base.StopAsync(cancellationToken);
         }
 
-        private static void ManageNewMessages() { //Thread for managing messages queue. This can be used for filtering and restyling messages
-            while (CommonData.MainHub_tryGetMessage()) {
-                var msg = CommonData.MainHub_dequeLastMessage();
+        //Thread for managing messages queue. This can be used for filtering and restyling messages
+        private static void ManageNewMessages() {
+            while (MainHubData.TryGetMessage()) {
+                var msg = MainHubData.DequeLastMessage();
                 _th_mainHub.Clients.All.ShowMessage(msg.User, msg.Message);
             }
         }
@@ -57,14 +56,14 @@ namespace WorkerService1 {
                 //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
                 usersBuilder.Clear();
-                CommonData.MainHub_getUsers()
+                MainHubData.GetUsers()
                     .Values.ToList<string>()
                     .ForEach(e => usersBuilder
                                     .Append(e)
                                     .Append(" - "));
 
                 _logger.LogInformation("Clients currently active on the servr: " + usersBuilder.ToString());
-                await _mainHub.Clients.All.ShowMessage("Server", "Server is working.", IMainHub.MessageType.Info);
+                await _mainHub.Clients.All.ShowMessage("Server", "Server is working.", IMainHubServer.MessageType.Info);
 
                 await Task.Delay(30000, stoppingToken);
             }

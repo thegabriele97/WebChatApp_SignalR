@@ -3,30 +3,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WorkerService1.Hub.Utils;
+using WorkerService1.Hub.MainHub.Utils;
 
 namespace WorkerService1.Hub.MainHub {
-    public class MainHub : Microsoft.AspNetCore.SignalR.Hub<IMainHub> {
+    public class MainHub : Microsoft.AspNetCore.SignalR.Hub<IMainHubServer>, IMainHubClient {
 
         public override Task OnDisconnectedAsync(Exception exception) {
-            CommonData.MainHub_removeUser(Context.ConnectionId);
+            MainHubData.RemoveUser(Context.ConnectionId);
             return base.OnDisconnectedAsync(exception);
         }
 
         public async Task RegisterUser(string username) {
-            var username_registered = CommonData.MainHub_registerUser(username, Context.ConnectionId);
+            var username_registered = MainHubData.RegisterUser(username, Context.ConnectionId);
 
             await Clients.Client(Context.ConnectionId)
                     .ConfirmUsername(username, username_registered);
 
             if (username_registered) {
                 await Clients.Client(Context.ConnectionId)
-                    .ShowMessage("server", "Welcome " + username + "!", IMainHub.MessageType.Welcome);
+                    .ShowMessage("server", "Welcome " + username + "!", IMainHubServer.MessageType.Welcome);
             }
         }
 
         public async Task SendMessageFromClient(string user, string message) {
-            CommonData.MainHub_registerMessage(new ChatMessage(user, message));
+            MainHubData.RegisterMessage(new ChatMessage(user, message));
         }
     }
 }
