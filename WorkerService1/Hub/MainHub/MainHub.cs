@@ -8,9 +8,18 @@ using WorkerService1.Hub.MainHub.Utils;
 namespace WorkerService1.Hub.MainHub {
     public class MainHub : Microsoft.AspNetCore.SignalR.Hub<IMainHubServer>, IMainHubClient {
 
-        public override Task OnDisconnectedAsync(Exception exception) {
+        public async override Task OnDisconnectedAsync(Exception exception) {
+
+            var username = MainHubData.GetUsers().ContainsKey(Context.ConnectionId) ?
+                MainHubData.GetUsers()[Context.ConnectionId] : null;
+
+            if (username != null) {
+                await Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " left the chat!"),
+                                                                IMainHubServer.MessageType.Welcome);
+            }
+
             MainHubData.RemoveUser(Context.ConnectionId);
-            return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task RegisterUser(string username) {
