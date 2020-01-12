@@ -26,8 +26,6 @@ window.onload = () => {
 
         document.getElementById('coso')
             .innerHTML += "<p style='color:" + color + "'><i style='color:gray'>" + date_hms + "</i> [" + messageObj.User + "]: " + messageObj.Message + "</p > ";
-
-        console.log("Message received: " + json_data);
     });
 
     connection.on("ConfirmUsername", (_username, confirmed) => {
