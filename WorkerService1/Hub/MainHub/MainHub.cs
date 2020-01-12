@@ -21,7 +21,12 @@ namespace WorkerService1.Hub.MainHub {
 
             if (username_registered) {
                 await Clients.Client(Context.ConnectionId)
-                    .ShowMessage("server", "Welcome " + username + "!", IMainHubServer.MessageType.Welcome);
+                    .ShowMessage("Server", "Welcome " + username + "!", IMainHubServer.MessageType.Welcome);
+
+                var usersExcluded = new List<string>();
+                usersExcluded.Add(Context.ConnectionId);
+                await Clients.AllExcept(usersExcluded.AsReadOnly())
+                        .ShowMessage("Server", username + " joined the chat!", IMainHubServer.MessageType.Welcome);
             }
         }
 
