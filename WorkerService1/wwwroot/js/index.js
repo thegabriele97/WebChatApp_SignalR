@@ -10,6 +10,7 @@ window.onload = () => {
     connection.on("ShowMessage", function (json_data, type) {
 
         let messageObj = JSON.parse(json_data);
+        let date_hms = messageObj.Date.split('T')[1].split('.')[0]; //example messageObj.Date = "2020-01-12T14:36:48.8633493+01:00"
         let color = "black";
         switch (type) {
             case 1:
@@ -24,7 +25,9 @@ window.onload = () => {
         }
 
         document.getElementById('coso')
-            .innerHTML += "<p style='color:" + color + "'>[" + messageObj.User + "]: " + messageObj.Message + "</p>";
+            .innerHTML += "<p style='color:" + color + "'><i style='color:gray'>" + date_hms + "</i> [" + messageObj.User + "]: " + messageObj.Message + "</p > ";
+
+        console.log("Message received: " + json_data);
     });
 
     connection.on("ConfirmUsername", (_username, confirmed) => {
@@ -36,14 +39,13 @@ window.onload = () => {
 
             username = _username;
             status_label.style = 'color:green';
-            status_label.innerText = "Connected"
+            status_label.innerText = "Connected";
         }
     });
 
     document.getElementById('btn').onclick = (e) => {
         let msg = document.getElementById('msg').value;
 
-        console.log("Sending message to server: " + msg);
         connection.invoke("SendMessageFromClient", username, msg)
             .catch(err => console.error(err.toString()));
     };

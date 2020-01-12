@@ -34,7 +34,7 @@ namespace WorkerService1 {
         }
 
         public override Task StopAsync(CancellationToken cancellationToken) {
-            _th_ManageNewMessages.Abort();
+            _th_ManageNewMessages.Abort(); //TODO: this doesn't work!! Try CTRL+C
             return base.StopAsync(cancellationToken);
         }
 
