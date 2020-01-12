@@ -1,0 +1,53 @@
+﻿@page
+@model WorkerService1.indexModel
+@using System.Text
+
+@{
+    ViewData["Title"] = "index";
+}
+
+<script src="~/js/signalr/signalr.js"></script>
+<script src="~/js/index.js"></script>
+
+
+<table width="100%">
+    <tr>
+        <th width="30%">
+            command
+        </th>
+        <th>
+            chat
+        </th>
+    </tr>
+    <tr>
+        <td align="left" height="15px">
+            <table>
+                <tr>
+                    <td>
+                        Status: <i style="color:red" id="status">Disconnected</i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Username: <input type="text" id="username" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" id="connect_btn" value="Connect" />
+                        <input type="button" id="disconnect_btn" value="Disconnect" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" id="msg" />
+                        <button id="btn">Send message</button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <p id="coso"></p>
+        </td>
+    </tr>
+</table>
