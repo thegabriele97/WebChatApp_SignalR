@@ -65,8 +65,8 @@ namespace WorkerService1 {
                 //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
                 _logger.LogInformation("Clients currently active on the server: " + String.Join(", ", MainHubData.GetUsers()));
-                await _mainHub.Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Server is working."), 
-                                                IMainHubServer.MessageType.Info);
+                await _mainHub.Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Server is working.", 
+                                                ChatMessage.MessageType.Info));
 
                 await Task.Delay(30000, stoppingToken);
             }

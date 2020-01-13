@@ -7,12 +7,12 @@ var connection = new signalR
     .build();
 
 window.onload = () => {
-    connection.on("ShowMessage", function (json_data, type) {
+    connection.on("ShowMessage", function (json_data) {
 
         let messageObj = JSON.parse(json_data);
         let date_hms = messageObj.Date.split('T')[1].split('.')[0]; //example messageObj.Date = "2020-01-12T14:36:48.8633493+01:00"
         let color = "black";
-        switch (type) {
+        switch (messageObj.Type) {
             case 1:
                 color = "green";
                 break;
@@ -27,7 +27,7 @@ window.onload = () => {
         document.getElementById('coso')
             .innerHTML += "<p style='color:" + color + "'><i style='color:gray'>" + date_hms + "</i> [" + messageObj.User + "]: " + messageObj.Message + "</p > ";
 
-        if (type === 1) {
+        if (messageObj.Type === 1) {
             connection.invoke('GetNumberOfActiveUsers');
         }
     });
@@ -56,6 +56,7 @@ window.onload = () => {
         swap_item_status();
         status_label.style = 'color:red';
         status_label.innerText = "Disconnected";
+        document.getElementById('label_activeUsers').innerText = 'NaN';
     });
 
     document.getElementById('msg').onkeyup = (e) => {

@@ -15,8 +15,9 @@ namespace WorkerService1.Hub.MainHub {
                 MainHubData.GetUsers()[Context.ConnectionId] : null;
 
             if (username != null) {
-                await Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " left the chat!"),
-                                                                IMainHubServer.MessageType.Welcome);
+                await Clients.All
+                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " left the chat!",
+                                                                    ChatMessage.MessageType.Welcome));
             }
 
             MainHubData.RemoveUser(Context.ConnectionId);
@@ -31,13 +32,12 @@ namespace WorkerService1.Hub.MainHub {
 
             if (username_registered) {
                 await Clients.Client(Context.ConnectionId)
-                    //.ShowMessage("Server", "Welcome " + username + "!", IMainHubServer.MessageType.Welcome);
-                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Welcome " + username + "!"), 
-                                IMainHubServer.MessageType.Welcome);
+                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Welcome " + username + "!", 
+                                ChatMessage.MessageType.Welcome));
 
                 await Clients.AllExcept(new List<string> { Context.ConnectionId })
-                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " joined the chat!"), 
-                                IMainHubServer.MessageType.Welcome);
+                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " joined the chat!", 
+                                ChatMessage.MessageType.Welcome));
             }
         }
 
