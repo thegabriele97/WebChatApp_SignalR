@@ -41,11 +41,27 @@ window.onload = () => {
         }
     });
 
-    document.getElementById('btn').onclick = (e) => {
-        let msg = document.getElementById('msg').value;
+    connection.onclose(() => {
+        var status_label = document.getElementById('status');
 
-        connection.invoke("SendMessageFromClient", username, msg)
+        swap_item_status();
+        status_label.style = 'color:red';
+        status_label.innerText = "Disconnected";
+    });
+
+    document.getElementById('msg').onkeyup = (e) => {
+        if (event.key === "Enter") {
+            document.getElementById('btn').click();
+        }
+    };
+
+    document.getElementById('btn').onclick = (e) => {
+        let msg_field = document.getElementById('msg');
+
+        connection.invoke("SendMessageFromClient", username, msg_field.value)
             .catch(err => console.error(err.toString()));
+
+        msg_field.value = "";
     };
 
     document.getElementById('connect_btn').onclick = (e) => {
@@ -64,13 +80,7 @@ window.onload = () => {
     };
 
     document.getElementById('disconnect_btn').onclick = (e) => {
-        var username_input = document.getElementById('username');
-        var status_label = document.getElementById('status');
-
         connection.stop();
-        swap_item_status();
-        status_label.style = 'color:red';
-        status_label.innerText = "Disconnected";
     };
 };
 
@@ -78,8 +88,12 @@ function swap_item_status() {
     let btn1 = document.getElementById('connect_btn');
     let btn2 = document.getElementById('disconnect_btn');
     let username_input = document.getElementById('username');
+    let btn_send_msg = document.getElementById('btn');
+    let msg_input = document.getElementById('msg');
 
     btn1.disabled = !btn1.disabled;
     btn2.disabled = !btn2.disabled;
     username_input.disabled = !username_input.disabled;
+    btn_send_msg.disabled = !btn_send_msg.disabled;
+    msg_input.disabled = !msg_input.disabled;
 }
