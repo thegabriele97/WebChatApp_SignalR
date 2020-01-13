@@ -8,5 +8,6 @@ namespace WorkerService1.Hub.MainHub {
         public Task OnDisconnectedAsync(Exception exception);
         public Task RegisterUser(string username);
         public Task SendMessageFromClient(string user, string message);
+        public Task GetNumberOfActiveUsers();
     }
 }

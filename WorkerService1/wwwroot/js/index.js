@@ -26,6 +26,10 @@ window.onload = () => {
 
         document.getElementById('coso')
             .innerHTML += "<p style='color:" + color + "'><i style='color:gray'>" + date_hms + "</i> [" + messageObj.User + "]: " + messageObj.Message + "</p > ";
+
+        if (type === 1) {
+            connection.invoke('GetNumberOfActiveUsers');
+        }
     });
 
     connection.on("ConfirmUsername", (_username, confirmed) => {
@@ -39,6 +43,11 @@ window.onload = () => {
             status_label.style = 'color:green';
             status_label.innerText = "Connected";
         }
+    });
+
+    connection.on("SendNumberOfActiveUsers", (raw_data) => {
+        document.getElementById('label_activeUsers')
+            .innerText = JSON.parse(raw_data).count_users;
     });
 
     connection.onclose(() => {

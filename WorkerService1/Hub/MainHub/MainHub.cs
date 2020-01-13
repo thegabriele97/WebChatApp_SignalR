@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using WorkerService1.Hub.MainHub.Utils;
 
@@ -42,6 +43,11 @@ namespace WorkerService1.Hub.MainHub {
 
         public async Task SendMessageFromClient(string user, string message) {
             MainHubData.RegisterMessage(new ChatMessage(user, message));
+        }
+
+        public async Task GetNumberOfActiveUsers() {
+            await Clients.Client(Context.ConnectionId)
+                    .SendNumberOfActiveUsers(JsonSerializer.Serialize(new { count_users = MainHubData.GetUsers().Count }));
         }
     }
 }

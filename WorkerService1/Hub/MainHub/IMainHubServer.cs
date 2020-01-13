@@ -7,5 +7,6 @@ namespace WorkerService1.Hub.MainHub {
         //Task ShowMessage(string user, string message, MessageType type = MessageType.Normal);
         Task ShowMessage(string json_data, MessageType type = MessageType.Normal);
         Task ConfirmUsername(string username, bool confirmed);
+        Task SendNumberOfActiveUsers(string json_data);
     }
 }
