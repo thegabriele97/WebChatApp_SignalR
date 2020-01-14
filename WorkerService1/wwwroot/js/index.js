@@ -50,18 +50,17 @@ window.onload = () => {
             .innerText = JSON.parse(raw_data).count_users;
     });
 
-    connection.onclose(() => {
-        var status_label = document.getElementById('status');
-
-        swap_item_status();
-        status_label.style = 'color:red';
-        status_label.innerText = "Disconnected";
-        document.getElementById('label_activeUsers').innerText = 'NaN';
-    });
+    connection.onclose(doLastThingToCloseConn);
 
     document.getElementById('msg').onkeyup = (e) => {
         if (event.key === "Enter") {
             document.getElementById('btn').click();
+        }
+    };
+
+    document.getElementById('username').onkeyup = (e) => {
+        if (event.key === "Enter") {
+            document.getElementById('connect_btn').click();
         }
     };
 
@@ -76,17 +75,22 @@ window.onload = () => {
 
     document.getElementById('connect_btn').onclick = (e) => {
         var username_input = document.getElementById('username');
+        var status_label = document.getElementById('status');
 
         if (username_input.value === "") {
             return;
         }
 
         swap_item_status();
+        status_label.style = 'color:blue';
+        status_label.innerText = "Connecting..";
+
         connection.start()
             .then(() => {
                 console.log("Connected to " + hub_URL);
                 connection.invoke("RegisterUser", username_input.value);
-            });
+            })
+            .catch(doLastThingToCloseConn);
     };
 
     document.getElementById('disconnect_btn').onclick = (e) => {
@@ -106,4 +110,13 @@ function swap_item_status() {
     username_input.disabled = !username_input.disabled;
     btn_send_msg.disabled = !btn_send_msg.disabled;
     msg_input.disabled = !msg_input.disabled;
+}
+
+function doLastThingToCloseConn() {
+    var status_label = document.getElementById('status');
+
+    swap_item_status();
+    status_label.style = 'color:red';
+    status_label.innerText = "Disconnected";
+    document.getElementById('label_activeUsers').innerText = 'NaN';
 }
