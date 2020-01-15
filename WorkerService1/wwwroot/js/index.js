@@ -12,21 +12,8 @@ window.onload = () => {
         let messageObj = JSON.parse(json_data);
         let date_hms = messageObj.Date.split('T')[1].split('.')[0]; //example messageObj.Date = "2020-01-12T14:36:48.8633493+01:00"
         let color = "black";
-        switch (messageObj.Type) {
-            case 1:
-                color = "green";
-                break;
-            case 2:
-                color = "red";
-                break;
-            case 3:
-                color = "blue";
-                break;
-        }
 
-        document.getElementById('coso')
-            .innerHTML += "<p style='color:" + color + "'><i style='color:gray'>" + date_hms + "</i> [" + messageObj.User + "]: " + messageObj.Message + "</p > ";
-
+        writeMessageInChat(messageObj.User, messageObj.Message, messageObj.Type, date_hms);
         if (messageObj.Type === 1) {
             connection.invoke('GetNumberOfActiveUsers');
         }
@@ -68,7 +55,10 @@ window.onload = () => {
         let msg_field = document.getElementById('msg');
 
         connection.invoke("SendMessageFromClient", username, msg_field.value)
-            .catch(err => console.error(err.toString()));
+            .catch(err => {
+                console.error(err.toString());
+                writeMessageInChat("Client", err, 2);
+            });
 
         msg_field.value = "";
     };
@@ -95,6 +85,10 @@ window.onload = () => {
 
     document.getElementById('disconnect_btn').onclick = (e) => {
         connection.stop();
+
+        if (username !== null) {
+            writeMessageInChat("Server", "Bye, see you son!", 1);
+        }
     };
 };
 
@@ -119,4 +113,32 @@ function doLastThingToCloseConn() {
     status_label.style = 'color:red';
     status_label.innerText = "Disconnected";
     document.getElementById('label_activeUsers').innerText = 'NaN';
+    username = null;
+}
+
+function writeMessageInChat(user, message, type, date_hms = null, element_id = 'coso') {
+
+    if (date_hms === null) {
+        let date = new Date();
+        date_hms = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    }
+
+    let color = "black";
+    switch (type) {
+        case 1:
+            color = "green";
+            break;
+        case 2:
+            color = "red";
+            break;
+        case 3:
+            color = "blue";
+            break;
+    }
+
+    document.getElementById(element_id)
+        .innerHTML += "<p style='color:"
+            + color + "'><i style='color:gray'>"
+            + date_hms + "</i> [" + user + "]: "
+            + message + "</p > ";
 }

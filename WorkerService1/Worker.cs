@@ -42,8 +42,10 @@ namespace WorkerService1 {
         }
 
         public override Task StopAsync(CancellationToken cancellationToken) {
-            _th_ManageNewMessages_CancTokenSource.Cancel(); //request cancellation of thread
-            MainHubData.RegisterMessage(new ChatMessage(null, null)); //register fake message to unlock thread and stop it
+            _th_ManageNewMessages_CancTokenSource.Cancel(); //request cancellation of threads
+
+            //for each thread, register a fake message to unlock and stop it
+            _th_ManageNewMessages_list.ForEach(_ => MainHubData.RegisterMessage(new ChatMessage(null, null)));
             return base.StopAsync(cancellationToken);
         }
 

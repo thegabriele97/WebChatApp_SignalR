@@ -42,7 +42,12 @@ namespace WorkerService1.Hub.MainHub {
         }
 
         public async Task SendMessageFromClient(string user, string message) {
-            MainHubData.RegisterMessage(new ChatMessage(user, message));
+
+            if (user != MainHubData.GetUsers()[Context.ConnectionId]) {
+                throw new InvalidOperationException("Client is using an invalid username.");
+            }
+
+            MainHubData.RegisterMessage(new ChatMessage(MainHubData.GetUsers()[Context.ConnectionId], message));
         }
 
         public async Task GetNumberOfActiveUsers() {
