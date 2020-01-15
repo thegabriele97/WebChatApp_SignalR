@@ -10,6 +10,7 @@ namespace WorkerService1.Hub.MainHub {
         private static readonly Dictionary<string, string> _userList = new Dictionary<string, string>();
         private static readonly Queue<ChatMessage> _userMessages = new Queue<ChatMessage>();
         private static readonly Semaphore _semaphore_messages = new Semaphore(0, 100);
+        private static readonly Semaphore _semaphore_mutexAccessUsersList = new Semaphore(1, 1);
 
         public static bool RegisterUser(string username, string connection_id) {
             
@@ -36,12 +37,14 @@ namespace WorkerService1.Hub.MainHub {
             _semaphore_messages.Release();
         }
 
-        public static bool TryGetMessage() {
-            return _semaphore_messages.WaitOne();
-        }
+        public static bool TryDequeLastMessage(out ChatMessage item) {
 
-        public static ChatMessage DequeLastMessage() {
-            return _userMessages.Dequeue();
+            var bool_ret = _semaphore_messages.WaitOne();
+            _semaphore_mutexAccessUsersList.WaitOne(); //Blocking access to Queue by other threads
+            item = _userMessages.Dequeue(); //Retrieving object from queue
+            _semaphore_mutexAccessUsersList.Release(); //Releasing access to queue by other thread
+            
+            return bool_ret;
         }
     }
 }

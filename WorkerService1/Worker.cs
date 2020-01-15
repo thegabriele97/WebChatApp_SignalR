@@ -16,20 +16,28 @@ namespace WorkerService1 {
     public class Worker : BackgroundService {
         private readonly ILogger<Worker> _logger;
         private readonly IHubContext<MainHub, IMainHubServer> _mainHub;
-        private readonly Thread _th_ManageNewMessages;
+        private readonly List<Thread> _th_ManageNewMessages_list;
         private readonly CancellationTokenSource _th_ManageNewMessages_CancTokenSource;
 
         public Worker(ILogger<Worker> logger, IHubContext<MainHub, IMainHubServer> hubContext) {
             _logger = logger;
             _mainHub = hubContext;
             _th_ManageNewMessages_CancTokenSource = new CancellationTokenSource();
-            _th_ManageNewMessages = new Thread(ManageNewMessages) {
-                Name = "_th_ManageNewMessages#1"
-            };
+            _th_ManageNewMessages_list = new List<Thread>();
+
+            for (Int16 i = 0; i < 2; i++) {
+                _th_ManageNewMessages_list.Add(new Thread(ManageNewMessages) {
+                    Name = String.Format("_th_ManageNewMessages#{0}", i)
+                });
+            }
         }
 
         public override Task StartAsync(CancellationToken cancellationToken) {
-            _th_ManageNewMessages.Start(new List<object> { _mainHub, _logger, _th_ManageNewMessages_CancTokenSource.Token });
+
+            _th_ManageNewMessages_list.ForEach(th => {
+                th.Start(new List<object> { _mainHub, _logger, _th_ManageNewMessages_CancTokenSource.Token });
+            });
+
             return base.StartAsync(cancellationToken);
         }
 
@@ -45,13 +53,13 @@ namespace WorkerService1 {
             var logger = CastRawArgs<ILogger<Worker>>(raw_args, 1);
             var stoppingToken = CastRawArgs<CancellationToken>(raw_args, 2);
 
-            while (MainHubData.TryGetMessage()) {
+            while (MainHubData.TryDequeLastMessage(out ChatMessage newMessage)) {
 
                 if (stoppingToken.IsCancellationRequested) {
                     break; //exit from while loop and terminate thread
                 }
 
-                var msg_json = MainHubData.DequeLastMessage().ToString();
+                var msg_json = newMessage.ToString();
                 logger.LogInformation(String.Format("#Thread {1} => New message: {0}", msg_json, Thread.CurrentThread.Name));
                 hub.Clients.All.ShowMessage(msg_json);
             }
