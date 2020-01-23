@@ -74,8 +74,8 @@ namespace WorkerService1 {
             while (!stoppingToken.IsCancellationRequested) {
                 //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                _logger.LogInformation("Clients currently active on the server: " + String.Join(", ", MainHubData.GetUsers()));
-                await _mainHub.Clients.All.ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Server is working.", 
+                _logger.LogInformation("Clients currently active on the server: " + String.Join(", ", MainHubData.GetUsers().Values.ToList()));
+                await _mainHub.Clients.All.ShowMessage(ChatMessage.CreateAsJSON(MainHubData.ServerUser, "Server is working.", 
                                                 ChatMessage.MessageType.Info));
 
                 await Task.Delay(30000, stoppingToken);

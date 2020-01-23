@@ -12,11 +12,11 @@ namespace WorkerService1.Hub.MainHub {
         public async override Task OnDisconnectedAsync(Exception exception) {
 
             var username = MainHubData.GetUsers().ContainsKey(Context.ConnectionId) ?
-                MainHubData.GetUsers()[Context.ConnectionId] : null;
+                MainHubData.GetUsers()[Context.ConnectionId].Username : null;
 
             if (username != null) {
                 await Clients.All
-                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " left the chat!",
+                        .ShowMessage(ChatMessage.CreateAsJSON(MainHubData.ServerUser, username + " left the chat!",
                                                                     ChatMessage.MessageType.Welcome));
             }
 
@@ -24,31 +24,37 @@ namespace WorkerService1.Hub.MainHub {
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task RegisterUser(string username) {
-            var username_registered = MainHubData.RegisterUser(username, Context.ConnectionId);
+        public async Task RegisterUser(string username, string ipAddress) {
+            ChatUser new_user = new ChatUser(Context.ConnectionId, username, ipAddress);
+            var username_registered = MainHubData.RegisterUser(new_user);
 
             await Clients.Client(Context.ConnectionId)
                     .ConfirmUsername(username, username_registered);
 
             if (username_registered) {
                 await Clients.Client(Context.ConnectionId)
-                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, "Welcome " + username + "!", 
+                        .ShowMessage(ChatMessage.CreateAsJSON(MainHubData.ServerUser, "Welcome " + username + "!", 
                                 ChatMessage.MessageType.Welcome));
 
                 await Clients.AllExcept(new List<string> { Context.ConnectionId })
-                        .ShowMessage(ChatMessage.CreateAsString(ChatMessage.ServerUsername, username + " joined the chat!", 
+                        .ShowMessage(ChatMessage.CreateAsJSON(MainHubData.ServerUser, username + " joined the chat!", 
                                 ChatMessage.MessageType.Welcome));
             }
         }
 
         public async Task SendMessageFromClient(string user, string message) {
-            var correct_username = MainHubData.GetUsers()[Context.ConnectionId];
+            var correct_user = MainHubData.GetUsers()[Context.ConnectionId];
 
-            if (user != correct_username) {
+            if (user != correct_user.Username) {
                 throw new InvalidOperationException("Client is using an invalid username.");
             }
 
-            MainHubData.RegisterMessage(new ChatMessage(correct_username, message));
+            if (!MainHubData.RegisterMessage(new ChatMessage(correct_user, message))) {
+                await Clients.Client(Context.ConnectionId)
+                    .ShowMessage(ChatMessage.CreateAsJSON(MainHubData.ServerUser, "You are kicked.", ChatMessage.MessageType.Error));
+
+                Context.Abort();
+            }
         }
 
         public async Task GetNumberOfActiveUsers() {

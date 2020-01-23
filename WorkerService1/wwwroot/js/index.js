@@ -13,7 +13,7 @@ window.onload = () => {
         let date_hms = messageObj.Date.split('T')[1].split('.')[0]; //example messageObj.Date = "2020-01-12T14:36:48.8633493+01:00"
         let color = "black";
 
-        writeMessageInChat(messageObj.User, messageObj.Message, messageObj.Type, date_hms);
+        writeMessageInChat(messageObj.User.Username, messageObj.Message, messageObj.Type, date_hms);
         if (messageObj.Type === 1) {
             connection.invoke('GetNumberOfActiveUsers');
         }
@@ -78,7 +78,17 @@ window.onload = () => {
         connection.start()
             .then(() => {
                 console.log("Connected to " + hub_URL);
-                connection.invoke("RegisterUser", username_input.value);
+
+                var HTTPConn = new XMLHttpRequest();
+                HTTPConn.open("GET", "https://api.ipify.org/?format=json");
+                HTTPConn.onreadystatechange = () => {
+                    if (HTTPConn.readyState === 4 && HTTPConn.status === 200) {
+                        let response_obj = JSON.parse(HTTPConn.responseText);
+                        connection.invoke("RegisterUser", username_input.value, response_obj.ip);
+                    }
+                };
+
+                HTTPConn.send();
             })
             .catch(doLastThingToCloseConn);
     };
